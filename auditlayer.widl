@@ -1,0 +1,52 @@
+record ProofInfo {
+    proof_hash: string,
+    proof_type: string,
+    timestamp: string
+}
+
+record ComplaintInfo {
+    user_id: string,
+    complaint_hash: string,
+    timestamp: string,
+    status: string,
+    proofs: list<ProofInfo>
+}
+
+@mcp
+interface AuditLayer {
+    //register a new complaint
+    mutate func complaint_register(
+        //unique complaint id
+        complaint_id: string,
+        //SHA256 hash of the complaint text
+        complaint_hash: string,
+        //unique user id
+        user_id: string,
+        //time at which the complaint is registered
+        timestamp: string
+    ) -> bool;
+    mutate func register_proof(
+        //complaint id to which the proof belong
+        complaint_id: string,
+        //SHA256 hash of the proof
+        proof_hash: string,
+        //type of the proof which has been submitted
+        proof_type: string,
+        //time at which the proof submitted
+        timestamp: string
+    ) -> bool;
+    //used to update the complaint status
+    mutate func update_complaint_status(
+        //complaint_id in which the status needs to be updated
+        complaint_id: string,
+        //status of the complaint like FILED, UNDER_INVESTIGATION, RESOLVED, REJECTED
+        status: string
+    ) -> bool;
+    //to fetch a all complaints
+    query func get_complaints() -> dict<string, ComplaintInfo>;
+    //to fetch a single complaint with complaint id
+    query func get_complaint(
+        //complaint id which we want to retrieve
+        complaint_id: string
+    ) -> ComplaintInfo
+}
