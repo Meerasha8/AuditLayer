@@ -53,7 +53,18 @@ impl AuditLayer for AuditLayerContractState {
 
     #[mutate]
     async fn complaint_register(&mut self, complaint_id: String, complaint_hash: String, user_id: String, timestamp: String) -> bool {
-        unimplemented!();
+        if self.complaints.contains_key(&complaint_id) {
+          return false;
+        }
+        let new_complaint = ComplaintInfo {
+          user_id,
+          complaint_hash,
+          timestamp,
+          status: "FILED".to_string(),
+          proofs: Vec::new(),
+        };
+        self.complaints.insert(complaint_id, new_complaint);
+        true
     }
 
     #[mutate]
@@ -68,7 +79,7 @@ impl AuditLayer for AuditLayerContractState {
 
     #[query]
     async fn get_complaints(&self) -> std::collections::BTreeMap<String, ComplaintInfo> {
-        unimplemented!();
+        self.complaints.clone()
     }
 
     #[query]
