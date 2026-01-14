@@ -163,7 +163,7 @@ impl AuditLayer for AuditLayerContractState {
     "type": "function",
     "function": {
       "name": "register_proof",
-      "description": "",
+      "description": "we will store the hash of the proof, what type of proof and timestamp of proof submission using this funtion",
       "parameters": {
         "type": "object",
         "properties": {
@@ -203,7 +203,7 @@ impl AuditLayer for AuditLayerContractState {
         "properties": {
           "complaint_id": {
             "type": "string",
-            "description": "complaint_id in which the status needs to be updated\n"
+            "description": "complaint_id in which the status needs to be updated if the current status if REJECTED or RESOLVED we skip\n"
           },
           "status": {
             "type": "string",

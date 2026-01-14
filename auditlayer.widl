@@ -26,6 +26,7 @@ interface AuditLayer {
         //time at which the complaint is registered
         timestamp: string
     ) -> bool;
+    //we will store the hash of the proof, what type of proof and timestamp of proof submission using this funtion
     mutate func register_proof(
         //complaint id to which the proof belong
         complaint_id: string,
@@ -38,7 +39,7 @@ interface AuditLayer {
     ) -> bool;
     //used to update the complaint status
     mutate func update_complaint_status(
-        //complaint_id in which the status needs to be updated
+        //complaint_id in which the status needs to be updated if the current status if REJECTED or RESOLVED we skip
         complaint_id: string,
         //status of the complaint like FILED, UNDER_INVESTIGATION, RESOLVED, REJECTED
         status: string,
