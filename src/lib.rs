@@ -84,7 +84,13 @@ impl AuditLayer for AuditLayerContractState {
 
     #[query]
     async fn get_complaint(&self, complaint_id: String) -> ComplaintInfo {
-        unimplemented!();
+        self.complaints.get(&complaint_id).cloned().unwrap_or(ComplaintInfo {
+          user_id: "".to_string(),
+          complaint_hash: "".to_string(),
+          timestamp: "".to_string(),
+          status: "".to_string(),
+          proofs: Vec::new(),
+        })
     }
 
 
