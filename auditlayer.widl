@@ -9,6 +9,7 @@ record ComplaintInfo {
     complaint_hash: string,
     timestamp: string,
     status: string,
+    last_update_status: string,
     proofs: list<ProofInfo>
 }
 
@@ -40,7 +41,9 @@ interface AuditLayer {
         //complaint_id in which the status needs to be updated
         complaint_id: string,
         //status of the complaint like FILED, UNDER_INVESTIGATION, RESOLVED, REJECTED
-        status: string
+        status: string,
+        //timestamp of the which the complaint status is updated
+        timestamp: string
     ) -> bool;
     //to fetch a all complaints
     query func get_complaints() -> dict<string, ComplaintInfo>;

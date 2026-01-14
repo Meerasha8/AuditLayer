@@ -16,6 +16,7 @@ pub struct ComplaintInfo {
     pub complaint_hash: String,
     pub timestamp: String,
     pub status: String,
+    pub last_status_update: String,
     pub proofs: Vec<ProofInfo>,
 }
 
@@ -25,7 +26,7 @@ trait AuditLayer {
         Self: Sized;
     async fn complaint_register(&mut self, complaint_id: String, complaint_hash: String, user_id: String, timestamp: String) -> bool;
     async fn register_proof(&mut self, complaint_id: String, proof_hash: String, proof_type: String, timestamp: String) -> bool;
-    async fn update_complaint_status(&mut self, complaint_id: String, status: String) -> bool;
+    async fn update_complaint_status(&mut self, complaint_id: String, status: String, timestamp: String) -> bool;
     async fn get_complaints(&self) -> std::collections::BTreeMap<String, ComplaintInfo>;
     async fn get_complaint(&self, complaint_id: String) -> ComplaintInfo;
     fn tools(&self) -> String;
@@ -59,8 +60,9 @@ impl AuditLayer for AuditLayerContractState {
         let new_complaint = ComplaintInfo {
           user_id,
           complaint_hash,
-          timestamp,
+          timestamp: timestamp.clone(),
           status: "FILED".to_string(),
+          last_status_update: timestamp.clone(),
           proofs: Vec::new(),
         };
         self.complaints.insert(complaint_id, new_complaint);
@@ -73,8 +75,18 @@ impl AuditLayer for AuditLayerContractState {
     }
 
     #[mutate]
-    async fn update_complaint_status(&mut self, complaint_id: String, status: String) -> bool {
-        unimplemented!();
+    async fn update_complaint_status(&mut self, complaint_id: String, status: String, timestamp: String) -> bool {
+        let complaint = match self.complaints.get_mut(&complaint_id) {
+          Some(c) => c,
+          None => return false,
+        };
+        if complaint.status =="REJECTED" {
+          return false;
+        };
+        complaint.status = status;
+        complaint.last_status_update = timestamp;
+        true
+
     }
 
     #[query]
@@ -90,6 +102,7 @@ impl AuditLayer for AuditLayerContractState {
           timestamp: "".to_string(),
           status: "".to_string(),
           proofs: Vec::new(),
+          last_status_update: "".to_string(),
         })
     }
 
@@ -180,11 +193,16 @@ impl AuditLayer for AuditLayerContractState {
           "status": {
             "type": "string",
             "description": "status of the complaint like FILED, UNDER_INVESTIGATION, RESOLVED, REJECTED\n"
+          },
+          "timestamp": {
+          "type": "string",
+          "description":"timestamp of the which the complaint status is updated\n"
           }
         },
         "required": [
           "complaint_id",
-          "status"
+          "status",
+          "timestamp"
         ]
       }
     }
