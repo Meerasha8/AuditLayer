@@ -71,7 +71,21 @@ impl AuditLayer for AuditLayerContractState {
 
     #[mutate]
     async fn register_proof(&mut self, complaint_id: String, proof_hash: String, proof_type: String, timestamp: String) -> bool {
-        unimplemented!();
+        let complaint = match self.complaints.get_mut(&complaint_id) {
+          Some(c) => c,
+          None => return false,
+        };
+        if complaint.status == "REJECTED" || complaint.status == "RESOLVED" {
+          // the complaint has already been rejected or resloved so no need add proofs to it
+          return false;
+        }
+        let proof = ProofInfo {
+          proof_hash,
+          proof_type,
+          timestamp
+        };
+        complaint.proofs.push(proof);
+        true
     }
 
     #[mutate]
@@ -80,7 +94,8 @@ impl AuditLayer for AuditLayerContractState {
           Some(c) => c,
           None => return false,
         };
-        if complaint.status =="REJECTED" {
+        if complaint.status == "REJECTED" || complaint.status == "RESOLVED" {
+          // the complaint has already been rejected or resloved so no need to update or change status
           return false;
         };
         complaint.status = status;
